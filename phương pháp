@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Trắc nghiệm: Đạo hàm hàm ẩn – Phương pháp DUYMT</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e9edf2 100%);
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            padding: 2rem 1rem;
+            color: #1e2a3a;
+        }
+
+        /* container chính */
+        .quiz-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 2rem;
+            box-shadow: 0 20px 35px -12px rgba(0,0,0,0.2);
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+
+        /* header giống phong cách DUYMT */
+        .duymt-header {
+            background: #0a2b3e;
+            background-image: radial-gradient(circle at 10% 20%, rgba(46,204,113,0.1) 0%, rgba(0,90,160,0.2) 90%);
+            padding: 1.8rem 2rem;
+            color: white;
+            border-bottom: 5px solid #2ecc71;
+        }
+
+        .duymt-header h1 {
+            font-size: 1.9rem;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .duymt-header h1 span {
+            background: #2ecc71;
+            font-size: 1rem;
+            padding: 0.2rem 1rem;
+            border-radius: 40px;
+            font-weight: normal;
+        }
+
+        .duymt-header p {
+            margin-top: 0.8rem;
+            opacity: 0.85;
+            font-style: italic;
+            border-left: 4px solid #2ecc71;
+            padding-left: 1rem;
+        }
+
+        /* thanh tiến trình */
+        .progress-area {
+            padding: 1rem 2rem;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .badge {
+            background: #0a2b3e;
+            color: white;
+            padding: 0.3rem 1rem;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .question-counter {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #2c3e66;
+        }
+
+        /* card câu hỏi */
+        .question-card {
+            padding: 2rem 2rem 1.5rem 2rem;
+            border-bottom: 1px solid #eef2f6;
+        }
+
+        .question-text {
+            font-size: 1.45rem;
+            font-weight: 600;
+            margin-bottom: 1.8rem;
+            line-height: 1.4;
+            color: #0f2b3d;
+        }
+
+        /* options */
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 1.8rem;
+        }
+
+        .option {
+            background: #ffffff;
+            border: 1.5px solid #dce5ef;
+            border-radius: 1.2rem;
+            padding: 0.9rem 1.2rem;
+            font-size: 1rem;
+            transition: all 0.2s;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .option:hover {
+            background: #eef7ff;
+            border-color: #2ecc71;
+            transform: translateX(5px);
+        }
+
+        .option-letter {
+            font-weight: 800;
+            background: #eef2f8;
+            width: 32px;
+            height: 32px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 60px;
+            color: #1e4663;
+        }
+
+        input[type="radio"] {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #94a3b8;
+            border-radius: 50%;
+            margin-right: 10px;
+            position: relative;
+            cursor: pointer;
+        }
+        input[type="radio"]:checked {
+            border-color: #2ecc71;
+            background-color: #2ecc71;
+            box-shadow: inset 0 0 0 4px white;
+        }
+        .option-text {
+            flex: 1;
+        }
+
+        /* feedback */
+        .feedback {
+            margin-top: 0.5rem;
+            padding: 0.8rem 1rem;
+            border-radius: 1rem;
+            font-size: 0.95rem;
+            display: none;
+        }
+        .feedback.show {
+            display: block;
+        }
+        .feedback.correct {
+            background: #e0f7e8;
+            border-left: 5px solid #2ecc71;
+            color: #0b4e2c;
+        }
+        .feedback.wrong {
+            background: #ffe6e5;
+            border-left: 5px solid #e74c3c;
+            color: #a12a1f;
+        }
+
+        /* nút bấm */
+        .nav-buttons {
+            padding: 1rem 2rem 2rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: #0a2b3e;
+            border: none;
+            padding: 0.8rem 1.8rem;
+            border-radius: 2rem;
+            font-weight: 600;
+            font-size: 1rem;
+            color: white;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        button.next-btn {
+            background: #2ecc71;
+            color: #0a2b3e;
+        }
+
+        button.submit-btn {
+            background: #f39c12;
+        }
+
+        button.reset-btn {
+            background: #7f8c8d;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.02);
+        }
+
+        /* kết quả */
+        .result-area {
+            margin: 0 2rem 2rem 2rem;
+            padding: 1.2rem;
+            background: #f1f9fe;
+            border-radius: 1.2rem;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: 500;
+            border: 1px solid #cbdff2;
+        }
+
+        footer {
+            text-align: center;
+            padding: 1rem;
+            font-size: 0.75rem;
+            color: #5b6e8c;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        @media (max-width: 680px) {
+            .duymt-header h1 { font-size: 1.4rem; }
+            .question-text { font-size: 1.2rem; }
+            .options-list { gap: 0.75rem; }
+            .quiz-container { border-radius: 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <div class="duymt-header">
+        <h1>
+            📐 Đạo hàm của hàm ẩn 
+            <span>Phương pháp DUYMT</span>
+        </h1>
+        <p>“Không dạy công thức máy móc — mà dạy điều công thức đang che giấu. Hàm ẩn là câu chuyện về sự lẫn lộn và nghệ thuật tách bạch.” — Dr.rer.nat Duymt</p>
+    </div>
+
+    <div class="progress-area">
+        <div class="badge">🧠 Harnessing AI • trắc nghiệm triết lý</div>
+        <div class="question-counter" id="counterDisplay">Câu 1 / 5</div>
+    </div>
+
+    <div id="questionsContainer">
+        <!-- Các câu hỏi sẽ được render bằng js -->
+    </div>
+
+    <div class="nav-buttons" id="navButtons">
+        <button id="prevBtn" disabled>◀ Câu trước</button>
+        <button id="nextBtn">Câu tiếp theo ▶</button>
+        <button id="submitBtn" style="background:#2ecc71;">✅ Nộp bài</button>
+        <button id="resetBtn" class="reset-btn">🔄 Làm lại</button>
+    </div>
+
+    <div id="resultArea" class="result-area" style="display: none;"></div>
+    <footer>
+        <span>✨ Mỗi câu hỏi đều ẩn chứa một điều công thức không nói. Hãy đọc nó. ✨</span>
+    </footer>
+</div>
+
+<script>
+    // ------------------------- DỮ LIỆU CÂU HỎI TRẮC NGHIỆM (chủ đề ĐẠO HÀM HÀM ẨN) -------------------------
+    const questions = [
+        { 
+            text: "Theo Dr.rer.nat Duymt, hàm ẩn (implicit function) được hiểu bản chất nhất là gì?",
+            options: [
+                "Hàm số có dạng y = f(x) thông thường.",
+                "Phương trình F(x, y) = 0 trong đó x và y trộn lẫn, không tách được y = f(x) tường minh.",
+                "Hàm số chỉ có một biến độc lập.",
+                "Hàm số luôn có đạo hàm bằng 0."
+            ],
+            correct: 1,
+            explanation: "✅ Hàm ẩn là khi x và y lẫn lộn trong cùng một phương trình, ví dụ x³ + x²y + y³ = 1. Đó là điều mà công thức đang che giấu: không thể đạo hàm trực tiếp như hàm tường minh."
+        },
+        { 
+            text: "Theo phương pháp DUYMT, bước đầu tiên để tìm y' của hàm ẩn là gì?",
+            options: [
+                "Chuyển tất cả số hạng sang một vế.",
+                "Đạo hàm hai vế của phương trình theo biến x, coi y là hàm số của x.",
+                "Nhóm các số hạng chứa y' lại với nhau.",
+                "Chia cả hai vế cho y'."
+            ],
+            correct: 1,
+            explanation: "📌 'Đạo hàm hai vế' – nguyên lý deconstruction: ta áp dụng đạo hàm lên toàn bộ hệ thức, dùng quy tắc chuỗi cho y(x). Sau đó mới nhóm và chuyển vế."
+        },
+        { 
+            text: "Cho phương trình hàm ẩn: x² + y² = 25. Hãy tìm y' (đạo hàm của y theo x).",
+            options: [
+                "y' = x / y",
+                "y' = -x / y",
+                "y' = y / x",
+                "y' = -y / x"
+            ],
+            correct: 1,
+            explanation: "🔍 Đạo hàm 2 vế: 2x + 2y·y' = 0 ⇒ 2y·y' = -2x ⇒ y' = -x/y. Đây là kết quả rút gọn, thể hiện cấu trúc 'tách y' từ hỗn hợp'."
+        },
+        { 
+            text: "Với phương trình x³ + 3x²y + y³ = 0, sau khi đạo hàm hai vế, việc tiếp theo cần làm là:",
+            options: [
+                "Giải phương trình bậc hai.",
+                "Nhóm tất cả các số hạng chứa y' về một bên, chuyển phần còn lại sang bên kia.",
+                "Thay y bằng một giá trị cụ thể.",
+                "Bỏ qua các số hạng có x."
+            ],
+            correct: 1,
+            explanation: "🎯 Nguyên lý số 2 + 4: Sau đạo hàm, chúng ta phải 'gom y' lại', đưa về dạng A·y' = B, rồi chia để tìm y' = B/A. Đó là cấu trúc xuyên suốt."
+        },
+        { 
+            text: "Theo triết lý 'Harnessing AI' (nguyên lý số 8) của thầy Duymt, khi dùng AI để học đạo hàm hàm ẩn, sinh viên nên:",
+            options: [
+                "Ra lệnh: 'Tính đạo hàm của x²y + y³ = 5' và chờ kết quả số.",
+                "Yêu cầu AI giải thích ý tưởng 'đạo hàm hai vế', tại sao coi y là hàm của x, và triết lý tách ẩn khỏi hiện.",
+                "Cấm sử dụng AI vì nó làm thụ động.",
+                "Chỉ dùng AI để kiểm tra đáp án cuối cùng."
+            ],
+            correct: 1,
+            explanation: "🤖 Harnessing = ghì cương. Đừng bảo AI làm tính, hãy bảo nó dạy em cách tư duy, giải thích động cơ và ẩn dụ đa tầng. AI như ngựa, phải cầm cương đúng hướng."
+        }
+    ];
+
+    let currentIndex = 0;
+    let userAnswers = new Array(questions.length).fill(null);
+    let quizSubmitted = false;
+
+    // DOM elements
+    const container = document.getElementById('questionsContainer');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const submitBtn = document.getElementById('submitBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const resultDiv = document.getElementById('resultArea');
+    const counterSpan = document.getElementById('counterDisplay');
+
+    // Render câu hỏi hiện tại
+    function renderCurrentQuestion() {
+        if (quizSubmitted) return;
+        const q = questions[currentIndex];
+        const selectedVal = userAnswers[currentIndex];
+        
+        let html = `
+            <div class="question-card">
+                <div class="question-text">${currentIndex+1}. ${q.text}</div>
+                <div class="options-list" id="optionsList">
+        `;
+        
+        q.options.forEach((opt, idx) => {
+            const checkedAttr = (selectedVal === idx) ? 'checked' : '';
+            html += `
+                <label class="option">
+                    <input type="radio" name="qOption" value="${idx}" ${checkedAttr}>
+                    <span class="option-text">${String.fromCharCode(65+idx)}. ${opt}</span>
+                </label>
+            `;
+        });
+        
+        html += `</div><div class="feedback" id="feedbackMsg"></div></div>`;
+        container.innerHTML = html;
+        
+        // Gắn sự kiện cho radio button
+        const radios = document.querySelectorAll('input[name="qOption"]');
+        radios.forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                if (quizSubmitted) return;
+                const selected = parseInt(e.target.value);
+                userAnswers[currentIndex] = selected;
+                // Ẩn feedback cũ khi chọn đáp án khác
+                const fbDiv = document.getElementById('feedbackMsg');
+                fbDiv.classList.remove('show', 'correct', 'wrong');
+                fbDiv.innerHTML = '';
+            });
+        });
+        
+        // Cập nhật trạng thái nút prev/next
+        prevBtn.disabled = (currentIndex === 0);
+        nextBtn.disabled = false;
+        if (currentIndex === questions.length-1) {
+            nextBtn.textContent = '📌 Câu cuối';
+        } else {
+            nextBtn.textContent = 'Câu tiếp theo ▶';
+        }
+        counterSpan.innerText = `Câu ${currentIndex+1} / ${questions.length}`;
+        
+        // Nếu đã chọn đáp án và chưa submit thì có thể hiển thị feedback riêng? (không hiện ngay để tránh rối)
+        // nhưng nếu muốn xem giải thích tức thời có thể bật, nhưng ở đây để sau khi nộp bài mới hiện đầy đủ
+        // Tuy nhiên, khi nộp bài sẽ hiện tất cả, còn nếu chưa nộp thì feedback không hiện.
+    }
+    
+    // Hiển thị kết quả tổng thể + giải thích từng câu (khi nộp)
+    function showResults() {
+        quizSubmitted = true;
+        let score = 0;
+        let resultHtml = `<h3 style="margin-bottom: 1rem;">📊 KẾT QUẢ TRẮC NGHIỆM</h3>`;
+        
+        for (let i = 0; i < questions.length; i++) {
+            const q = questions[i];
+            const userChoice = userAnswers[i];
+            const isCorrect = (userChoice === q.correct);
+            if (isCorrect) score++;
+            
+            const userLetter = (userChoice !== null) ? String.fromCharCode(65+userChoice) : 'Chưa chọn';
+            const correctLetter = String.fromCharCode(65+q.correct);
+            resultHtml += `
+                <div style="background: #fff; margin-bottom: 1rem; padding: 1rem; border-radius: 1rem; text-align: left; border-left: 5px solid ${isCorrect ? '#2ecc71' : '#e74c3c'}">
+                    <div><strong>Câu ${i+1}:</strong> ${q.text}</div>
+                    <div>📌 Bạn chọn: ${userLetter} – ${userChoice !== null ? q.options[userChoice] : '....'}</div>
+                    <div>✅ Đáp án đúng: ${correctLetter}. ${q.options[q.correct]}</div>
+                    <div style="margin-top: 6px; font-size:0.9rem; color:#2c3e50;"><em>📖 ${q.explanation}</em></div>
+                </div>
+            `;
+        }
+        resultHtml += `<div style="font-size:1.6rem; font-weight:bold; margin-top:1rem;">Điểm số: ${score} / ${questions.length} (${Math.round(score/questions.length*100)} điểm DUYMT)</div>`;
+        resultDiv.innerHTML = resultHtml;
+        resultDiv.style.display = 'block';
+        
+        // disable radio buttons và ẩn các nút tương tác tránh thay đổi
+        const allRadios = document.querySelectorAll('input[name="qOption"]');
+        allRadios.forEach(radio => radio.disabled = true);
+        submitBtn.disabled = true;
+        nextBtn.disabled = true;
+        prevBtn.disabled = true;
+    }
+    
+    // Làm lại toàn bộ
+    function resetQuiz() {
+        quizSubmitted = false;
+        userAnswers = new Array(questions.length).fill(null);
+        currentIndex = 0;
+        resultDiv.style.display = 'none';
+        resultDiv.innerHTML = '';
+        submitBtn.disabled = false;
+        nextBtn.disabled = false;
+        prevBtn.disabled = false;
+        renderCurrentQuestion();
+        // Đảm bảo lại trạng thái nút submit
+    }
+    
+    // Chuyển câu
+    function nextQuestion() {
+        if (quizSubmitted) return;
+        if (currentIndex < questions.length - 1) {
+            currentIndex++;
+            renderCurrentQuestion();
+        } else {
+            // Nếu đang ở câu cuối, có thể thông báo hoặc chuyển sang nộp
+            if (currentIndex === questions.length-1) {
+                // Tùy chọn hiện thông báo nhẹ
+                if (confirm("Bạn đang ở câu cuối. Bạn có muốn nộp bài để xem kết quả không?")) {
+                    showResults();
+                }
+            }
+        }
+    }
+    
+    function prevQuestion() {
+        if (quizSubmitted) return;
+        if (currentIndex > 0) {
+            currentIndex--;
+            renderCurrentQuestion();
+        }
+    }
+    
+    // Khởi tạo sự kiện, render lần đầu
+    function init() {
+        renderCurrentQuestion();
+        prevBtn.addEventListener('click', prevQuestion);
+        nextBtn.addEventListener('click', nextQuestion);
+        submitBtn.addEventListener('click', () => {
+            if (!quizSubmitted) {
+                // kiểm tra xem đã trả lời hết chưa?
+                let unanswered = userAnswers.some(ans => ans === null);
+                if (unanswered) {
+                    if (confirm("Bạn vẫn còn câu chưa chọn đáp án. Bạn có chắc muốn nộp bài không?")) {
+                        showResults();
+                    }
+                } else {
+                    showResults();
+                }
+            }
+        });
+        resetBtn.addEventListener('click', () => {
+            resetQuiz();
+        });
+    }
+    
+    init();
+</script>
+</body>
+</html>
